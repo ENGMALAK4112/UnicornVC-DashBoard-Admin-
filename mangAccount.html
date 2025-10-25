@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المشرف - منصة المشاريع والاستثمار</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        .main-content-area {
+            transition: margin-right 0.3s ease-linear; 
+        }
+    </style>
+</head>
+
+<body x-data="{ 
+    // 🔑 هذا هو التعريف الرئيسي الوحيد
+    isSidebarOpen: window.innerWidth >= 1024, 
+    isDark: localStorage.getItem('isDark') === 'true' 
+}"
+    :class="{'dark': isDark}"
+    class="bg-gray-50 dark:bg-black transition-colors duration-300"
+    @resize.window="isSidebarOpen = window.innerWidth >= 1024 ? isSidebarOpen : false"
+>
+    <div x-show="isSidebarOpen && window.innerWidth < 1024" 
+         @click="isSidebarOpen = false"
+         class="fixed inset-0 z-40 bg-black opacity-40 lg:hidden">
+    </div>
+
+    <script>
+        if (localStorage.getItem('isDark') === 'true') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        window.toggleDarkMode = function(data) {
+            let isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('isDark', isDark);
+            data.isDark = isDark;
+            // ⭐️ إطلاق حدث لتحديث المخططات عند التغيير
+            window.dispatchEvent(new CustomEvent('toggle-dark-mode'));
+        }
+    </script>
+
+    <div class="flex h-screen overflow-hidden">
+
+<aside x-bind:class="{
+    'w-64': isSidebarOpen,
+    'w-20': !isSidebarOpen && window.innerWidth >= 1024,
+    'w-64 transform translate-x-0': isSidebarOpen && window.innerWidth < 1024,
+    'w-64 transform translate-x-64': !isSidebarOpen && window.innerWidth < 1024 
+}" 
+    class="flex flex-col h-full overflow-y-auto 
+            duration-300 ease-linear transition-all 
+            fixed right-0 z-50 bg-white dark:bg-black 
+            shadow-xl dark:shadow-2xl border-l border-gray-200 dark:border-gray-700
+            lg:relative lg:transform-none lg:translate-x-0" 
+    dir="rtl">
+
+    <div class="flex items-center justify-between gap-2 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+        <button 
+            @click="isSidebarOpen = !isSidebarOpen" 
+            class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden">
+            <svg x-show="isSidebarOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <svg x-show="!isSidebarOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+
+        <a x-show="isSidebarOpen || window.innerWidth >= 1024" href="#" class="flex items-center gap-2">
+            <img src="images/logo.png" alt="شعار الشركة" class="w-24 h-full object-contain">
+        </a>
+
+        <button 
+            @click="isSidebarOpen = !isSidebarOpen" 
+            class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hidden lg:block">
+            <svg x-show="isSidebarOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"></path>
+            </svg>
+            <svg x-show="!isSidebarOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 12h14"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div class="flex flex-col overflow-y-auto duration-300 ease-linear transition-all h-full justify-between">
+        <nav class="mt-3 py-3 px-4 lg:mt-5 lg:px-6">
+            <ul class="mb-6 flex flex-col gap-1.5">
+                <li>
+                    <a href="index.html" class="group flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M3 12l9-9 9 9M5 10v9a2 2 0 002 2h10a2 2 0 002-2v-9"></path></svg>
+                        <span x-show="isSidebarOpen" class="duration-300 ease-linear">الرئيسية</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="mangeProj.html" class="group flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 14l9-5-9-5-9 5 9 5zM3 12v9a2 2 0 002 2h14a2 2 0 002-2v-9M12 14V3"></path></svg>
+                        <span x-show="isSidebarOpen" class="duration-300 ease-linear">إدارة المشاريع</span>
+                    </a>
+                </li>
+                
+                <div class="my-3 border-t border-gray-300 dark:border-gray-700"></div>
+                
+                <li>
+                    <a href="mangAccount.html" class="group flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium bg-indigo-600 dark:bg-indigo-700 text-white hover:bg-indigo-700 dark:hover:bg-indigo-800">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span x-show="isSidebarOpen" class="duration-300 ease-linear">إدارة الحساب</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="mb-4 px-6">
+            <a href="#" class="group flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"></path></svg>
+                <span x-show="isSidebarOpen" class="duration-300 ease-linear">تسجيل الخروج</span>
+            </a>
+        </div>
+    </div>
+</aside>
+
+<div x-bind:class="{
+    'mr-0': true
+}"
+     class="main-content-area relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden transition-all duration-300 ease-linear">
+
+    <header dir="rtl" class="sticky top-0 z-30 flex w-full bg-white drop-shadow-sm dark:bg-black">
+        <div class="flex flex-grow items-center justify-between py-4 px-4 md:px-6 border-b border-gray-200 dark:border-gray-700">
+            
+            <button 
+                @click="isSidebarOpen = true" 
+                class="p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+
+            <div x-data="{ isProfileOpen: false }" class="flex items-center gap-3 relative">
+                <a href="#" @click.prevent="isProfileOpen = !isProfileOpen"
+                    class="flex items-center gap-3 border-l border-gray-200 dark:border-gray-700 pl-4">
+                    <span class="h-10 w-10 rounded-full overflow-hidden">
+                        <img src="https://ui-avatars.com/api/?name=محمد&background=4f46e5&color=fff" alt="User"
+                            class="rounded-full h-full w-full object-cover">
+                    </span>
+                    <span class="hidden text-right sm:block"> <span class="block text-sm font-medium text-gray-900 dark:text-white">محمد أحمد</span>
+                        <span class="block text-xs text-gray-500 dark:text-gray-400">mohammed@gmail.com</span>
+                    </span>
+                </a>
+
+                <div x-show="isProfileOpen" @click.outside="isProfileOpen = false"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="absolute right-0 top-full mt-2.5 flex w-60 sm:w-72 flex-col rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 z-50"> <ul class="flex flex-col gap-4 border-b border-gray-200 dark:border-gray-700 py-5 px-6">
+                        <li><a href="#" class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 hover:text-indigo-600">حسابي</a></li>
+                        <li><a href="#" class="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 hover:text-indigo-600">الإعدادات</a></li>
+                    </ul>
+                    <button
+                        class="flex items-center gap-3 py-3 px-6 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"></path>
+                        </svg>
+                        تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open"
+                        class="p-2 relative rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 01-3.46 0"></path>
+                        </svg>
+                        <span class="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-600"></span>
+                    </button>
+
+                    <div x-show="open" @click.outside="open = false"
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave-end="opacity-0 scale-95"
+                        class="absolute left-0 mt-2.5 w-72 rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800 z-50">
+                        <div class="px-4 py-3 border-b dark:border-gray-700">
+                            <h5 class="text-sm font-medium text-gray-900 dark:text-white">الإشعارات (3)</h5>
+                        </div>
+                        <div class="p-4 text-gray-600 dark:text-gray-300 text-sm">لا توجد إشعارات جديدة</div>
+                    </div>
+                </div>
+
+                <button @click="/* دالة تغيير اللغة */"
+                    class="flex items-center gap-2 px-3 py-2 rounded-full border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9 4.03-9 9-9zm0 0c2.485 0 4.5 4.03 4.5 9S14.485 21 12 21m0-18c-2.485 0-4.5 4.03-4.5 9S9.515 21 12 21m-9-9h18" />
+                    </svg>
+                    <span class="text-sm font-medium hidden sm:block">AR / EN</span> </button>
+
+                <button @click="toggleDarkMode($data)"
+                    class="p-2 rounded-full border border-gray-200 dark:border-gray-700 transition-all duration-300"
+                    :class="isDark ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'">
+                    
+                    <svg x-show="!isDark" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    
+                    <svg x-show="isDark" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+    </header>
+    <main>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+        
+            <div class="mb-8 pb-3 border-b border-gray-200 dark:border-gray-700">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">إدارة الحساب الشخصي</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">تحديث معلوماتك الأساسية وإعدادات الأمان الخاصة بك.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 space-y-8">
+                    
+                    <div class="rounded-xl border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800 p-6 md:p-8">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">تحديث المعلومات الأساسية</h3>
+                        <form action="#" method="POST">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                
+                                <div>
+                                    <label for="full-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الاسم الكامل</label>
+                                    <input type="text" id="full-name" name="fullName" required value="محمد أحمد"
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2.5 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors">
+                                </div>
+
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">البريد الإلكتروني</label>
+                                    <input type="email" id="email" name="email" required value="mohammed@gmail.com"
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2.5 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors">
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">الدور في النظام</label>
+                                    <input type="text" id="role" name="role" disabled value="المدير العام"
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 px-4 py-2.5 text-gray-500 dark:text-gray-400 cursor-not-allowed">
+                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">لا يمكن تغيير الدور إلا عبر صفحة إدارة المستخدمين من قبل مسؤول أعلى.</p>
+                                </div>
+
+                            </div>
+                            
+                            <div class="flex justify-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <button type="submit"
+                                    class="flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-md">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    حفظ المعلومات
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="rounded-xl border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800 p-6 md:p-8">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">تغيير كلمة المرور</h3>
+                        <form action="#" method="POST">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                
+                                <div class="md:col-span-2">
+                                    <label for="current-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كلمة المرور الحالية</label>
+                                    <input type="password" id="current-password" name="currentPassword" required
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2.5 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+                                        placeholder="أدخل كلمة المرور الحالية">
+                                </div>
+
+                                <div>
+                                    <label for="new-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">كلمة المرور الجديدة</label>
+                                    <input type="password" id="new-password" name="newPassword" required
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2.5 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+                                        placeholder="أدخل كلمة المرور الجديدة">
+                                </div>
+
+                                <div>
+                                    <label for="confirm-new-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">تأكيد كلمة المرور الجديدة</label>
+                                    <input type="password" id="confirm-new-password" name="confirmNewPassword" required
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2.5 text-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+                                        placeholder="أعد إدخال كلمة المرور الجديدة">
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <button type="submit"
+                                    class="flex items-center gap-2 px-6 py-3 rounded-lg text-base font-medium bg-red-600 text-white hover:bg-red-700 transition-colors shadow-md">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v3"></path></svg>
+                                    تحديث كلمة المرور
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <div class="rounded-xl border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800 p-6 md:p-8 text-center">
+                        <img src="https://ui-avatars.com/api/?name=محمد+أحمد&background=4f46e5&color=fff&size=128" alt="صورة المستخدم" 
+                            class="mx-auto mb-4 h-32 w-32 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700">
+                        
+                        <h4 class="text-xl font-bold text-gray-900 dark:text-white">محمد أحمد</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">المدير العام</p>
+                        
+                        <button class="w-full px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-md">
+                            تغيير الصورة الشخصية
+                        </button>
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">PNG أو JPG (الحد الأقصى 2 ميغابايت)</p>
+                    </div>
+                    
+                    <div class="rounded-xl border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800 p-6 md:p-8 mt-8">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-700 pb-3">إعدادات الإشعارات</h3>
+                        <div class="space-y-4">
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">إشعارات البريد الإلكتروني</span>
+                                <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                                    <input type="checkbox" name="email-notifications" id="email-notifications" 
+                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer right-4" checked>
+                                    <label for="email-notifications" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer dark:bg-gray-600"></label>
+                                </div>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">إشعارات النظام</span>
+                                <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                                    <input type="checkbox" name="system-notifications" id="system-notifications" 
+                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer right-4">
+                                    <label for="system-notifications" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer dark:bg-gray-600"></label>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                </div>
+</div>
+    </main>
+
+</div>
+</div>
+
+</body>
+</html>
